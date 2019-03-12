@@ -1,1 +1,1 @@
-Please Read code and run.
+Please read code and run.
