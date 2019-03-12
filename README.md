@@ -1,1 +1,1 @@
-앙 git모띠
+Please Read code and run.
