@@ -1,338 +1,66 @@
-#include <iostream>
-#include <queue>
-#include <vector>
+#include <bits/stdc++.h>
 using namespace std;
+#define N		105
+struct bus{
+	int id,t,p;
+}a[N];
+int idx;
+bus q[N*N];
+int front,rear;
 
-typedef struct bus{
-	int t, p;	//¿Ã½Ã°£, Á¤Â÷½Ã°£
-}bus;
+int busstop[11];	//-1: ë²„ìŠ¤ì—†ìŒ 0ì´ìƒ: ë‚¨ì€ ì •ì°¨ì‹œê°„
+int n,m;
 
-int find_index(int n, vector<bool> & isbus) {	//¹ö½º°¡ Á¤Â÷ÇÒ À§Ä¡¸¦ Ã£´Â ÇÔ¼ö
-	for (int i = n-1; i >= 0; i--) {
-		if (isbus[i]) {
-			return i + 1;
-		}
-	}
-	return 0;
-}
 int main()
 {
-	int n, m;
-	cin >> n>>m;
-	vector<bus> busstop(n);		//¹ö½ºÁ¤·ùÀå(½Ã°£,Á¤Â÷³²Àº½Ã°£)
-	vector<bool> isbus(n);	//¹ö½ºÁ¤·ùÀå(¹ö½ºÀÇ À¯¹«)
-	queue<bus> buslist;		//ÀüÃ¼ ¹ö½º
-	queue<bus> waitlist;	//±â´Ù¸®´Â ¹ö½º
-
-	for (int i = 0; i < m; i++) {
-		bus b;
-		cin >> b.t >> b.p;
-		buslist.push(b);
+    ios_base::sync_with_stdio(false);
+    cin.tie(0);
+    freopen("input.txt","r",stdin);
+	cin>>n>>m;
+	for(int i=0;i<m;++i){
+		a[i].id=i+1;
+		cin>>a[i].t>>a[i].p;
 	}
+	memset(busstop,-1,sizeof(busstop));
 
-	int t = 0;		//½Ã°£
-	int size = 0;	//¹ö½ºÁ¤·ùÀå¿¡ Á¤Â÷ÁßÀÎ ¹ö½º ¼ö
-	int cnt = 0;	//Áö±İ µé¾î¿À´Â ¹ö½º°¡ ¸î¹øÂ° ¹ö½ºÀÎÁö
-	int ans;
-	while (!buslist.empty() || !waitlist.empty()) {	//¹ö½º´Ù¿Ó°í ±â´Ù¸®´Â¹ö½ºµµ ¾øÀ» ¶§
-		t += 1;	//½Ã°£ÀÇ Èå¸§
+	int timer=0;
+	while(1){
+		/*ì‹œê°„ì˜ íë¦„*/
+		timer++;
 
-		//¸ÕÀú ¹ö½ºÁ¤·ùÀå¿¡ ÀÖ´Â ¹ö½ºÁß °¥¼öÀÖ´Â ¹ö½º º¸³½´Ù.
-		if (size > 0) {	//¹ö½ºÁ¤·ùÀå¿¡ Á¤Â÷ÁßÀÎ ¹ö½º°¡ ÀÖÀ¸¸é
-			//Á¤Â÷³²Àº½Ã°£ -= 1
-			for (int i = 0; i < n; i++) {
-				if (isbus[i]) {
-					busstop[i].p -= 1;
+		for(int i=1;i<=n;++i){
+			if(busstop[i]>0) busstop[i]--;
+		}
+		/*ë²„ìŠ¤ íƒˆì¶œ*/
+		for(int i=1;i<=n;++i){
+			if(busstop[i]==-1) continue;
+			/*ì•ì°¨ë¶€í„°*/
+			if(busstop[i]>0) break; 	//ì•ì—ì°¨ê°€ ëª»ê°€ë©´ ë’·ì°¨ëŠ” ë‹¹ì—°íˆ ëª»ê°
+			if(busstop[i]==0){			//ì •ì°¨ì‹œê°„ ë‹¤ë¬ìœ¼ë©´
+				busstop[i]=-1;	
+			}
+		}
+		
+		/*ë„ì°©í•œ ë²„ìŠ¤ë“¤ ëŒ€ê¸°ì—´ì— ë„£ìŒ*/
+		while(idx!=m&&a[idx].t<=timer){
+			q[rear++]=a[idx++];
+		}
+
+		/*ë²„ìŠ¤ì •ë¥˜ì¥ìœ¼ë¡œ ë“¤ì–´ê°€ê¸°*/
+		while(front!=rear&&busstop[n]==-1){
+			int i;
+			for(i=n-1;i>=1;i--){
+				if(busstop[i]>=0){
+					break;
 				}
 			}
-
-			for (int i = 0; i < n; i++) {	//¾Õ¿¡ºÎÅÍ Å½»ö
-				if (isbus[i]) {	//Á¤Â÷ÁßÀÎ ¹ö½º°¡ ÀÖÀ¸¸é
-					if (busstop[i].p <= 0) {	//Á¤Â÷½Ã°£ÀÌ Áö³µÀ¸¸é
-						isbus[i] = false;	//¹ö½ºº¸³¿
-						busstop[i].t = busstop[i].p = 0;
-						size -= 1;	//¹ö½º¼ö-1
-					}
-					else {	//¾Õ¿¡ ¹ö½º°¡ Á¤Â÷½Ã°£ ¾ÈÁö³µÀ¸¸é
-						break;	//µÚ¿¡ÀÖ´Â ¹ö½ºµµ ¸ø°¨
-					}
-				}
+			if(q[front].id==m){	//më²ˆì§¸ ë²„ìŠ¤
+				cout<<i+1;
+				return 0;
 			}
+			busstop[i+1]=q[front++].p;
 		}
 
-		//¹ö½ºÁ¤·ùÀå¿¡ ¹ö½º³Ö±â
-		//´ë±â¸®½ºÆ®¿¡ ¸ÕÀú ³Ö±â
-		while (!buslist.empty() && buslist.front().t <= t) {	//¿Ã¹ö½º°¡ ³²¾ÆÀÖ°í ¹ö½º°¡ ¿Ã½Ã°£ÀÌ ‰çÀ¸¸é
-			waitlist.push(buslist.front());	//´ë±â¸®½ºÆ®¿¡ ³Ö´Â´Ù
-			buslist.pop();
-
-		}
-
-		while (!waitlist.empty()) {	//´ë±âÁßÀÎ ¹ö½º ³Ö±â
-			if (isbus[n - 1]) {		//n¹øÂ° Á¤·ùÀå¿¡ ¹ö½º°¡ ÀÖÀ¸¸é ¸ø³ÖÀ½
-				break;
-			}
-			int i = find_index(n,isbus);	//µé¾î°¥ À§Ä¡¸¦ Ã£¾Æ¼­
-			busstop[i] = waitlist.front();	//¹ö½º³Ö±â
-			waitlist.pop();
-			isbus[i] = true;	//¹ö½º°¡ ÀÖÀ½À» Ç¥½Ã
-			size += 1;	//¹ö½º¼ö+1
-			ans = i+1;
-		}
 	}
-	cout << ans;
-	return 0;
+    return 0;
 }
-
-//#include <iostream>
-//#include <queue>
-//#include <vector>
-//using namespace std;
-//
-//typedef struct bus{
-//	int t, p;	//¿Ã½Ã°£, Á¤Â÷½Ã°£
-//}bus;
-//
-//bus busstop[11];
-//bool isbus[11];		//¹ö½ºÁ¤·ùÀå(¹ö½ºÀÇ À¯¹«)
-//int n, m;
-//int find_index() {	//¹ö½º°¡ Á¤Â÷ÇÒ À§Ä¡¸¦ Ã£´Â ÇÔ¼ö
-//	for (int i = 1; i <= n; i++) {
-//		if (!isbus[i]) {
-//			return i;
-//		}
-//	}
-//}
-//int main()
-//{
-//	cin >> n >> m;
-//	queue<bus> buses;	//ÀüÃ¼ ¹ö½º
-//	//ÀÔ·Â
-//	for (int i = 0; i < m; i++) {
-//		bus b;
-//		cin >> b.t >> b.p;
-//		buses.push(b);
-//	}
-//	int t = 0;	//½Ã°£
-//	int size = 0;	//¹ö½ºÁ¤·ùÀå¿¡ Á¤Â÷ÁßÀÎ ¹ö½º ¼ö
-//	int cnt = 0;	//Áö±İ µé¾î¿À´Â ¹ö½º°¡ ¸î¹øÂ° ¹ö½ºÀÎÁö
-//	while (!buses.empty()) {	//¸ğµç ¹ö½º°¡ µé¾î¿Ã¶§±îÁö
-//		t += 1;	//½Ã°£ÀÇ Èå¸§
-//		//Á¤Â÷ÁßÀÎ ¹ö½º°¡ ÀÖÀ¸¸é Á¤Â÷³²Àº½Ã°£ -1
-//		for (int i = 1; i <= n; i++) {
-//			if (isbus[i]) {
-//				busstop[i].p -= 1;
-//			}
-//		}
-//
-//		//¸ÕÀú ¹ö½ºÁ¤·ùÀå¿¡ ÀÖ´Â ¹ö½ºÁß °¥¼öÀÖ´Â ¹ö½º º¸³½´Ù.
-//		if (size > 0) {	//¹ö½ºÁ¤·ùÀå¿¡ ¹ö½º°¡ ÀÖÀ¸¸é
-//			for (int i = 1; i <= n; i++) {	//¾Õ¿¡ºÎÅÍ Å½»ö
-//				if (isbus[i]) {	//Á¤Â÷ÁßÀÎ ¹ö½º°¡ ÀÖÀ¸¸é
-//					if (busstop[i].p <= 0) {	//Á¤Â÷½Ã°£ÀÌ Áö³µÀ¸¸é
-//						isbus[i] = false;	//¹ö½ºº¸³¿
-//						size -= 1;	//¹ö½º¼ö-1
-//					}
-//					else {	//¾Õ¿¡ ¹ö½º°¡ Á¤Â÷½Ã°£ ¾ÈÁö³µÀ¸¸é
-//						break;	//µÚ¿¡ÀÖ´Â ¹ö½ºµµ ¸ø°¨
-//					}
-//				}
-//			}
-//		}
-//
-//		//¹ö½ºÁ¤·ùÀå¿¡ ¹ö½º³Ö±â
-//		while (!isbus[n]) {	//n¹øÂ° Á¤·ùÀå¿¡ ¹ö½º°¡ ¾øÀ¸¸é
-//			if (buses.front().t <= t) {	//´ë±âÁßÀÎ ¹ö½º°¡ ¿Ã½Ã°£ÀÌ ‰ç°Å³ª Áö³µÀ¸¸é
-//				int i = find_index();	//µé¾î°¥ À§Ä¡¸¦ Ã£¾Æ¼­
-//				busstop[i] = buses.front();	//¹ö½º³Ö±â
-//				buses.pop();
-//				isbus[i] = true;	//¹ö½º°¡ ÀÖÀ½À» Ç¥½Ã
-//				size += 1;	//¹ö½º¼ö+1
-//				cnt += 1;	//¸î¹øÂ° ¹ö½º¿´´ÂÁö ¼¼±â
-//				if (cnt == m) {	//m¹øÂ° ¹ö½º¿´À¸¸é
-//					cout << i;	//Ãâ·ÂÇÏ°í Á¾·á
-//					return 0;
-//				}
-//			}
-//			else {	//´ë±â½Ã°£ ¾È‰çÀ¸¸é break;
-//				break;
-//			}
-//		}
-//	}
-//	return 0;
-//}
-
-//#include <iostream>
-//#include <queue>
-//using namespace std;
-//
-//struct bus {
-//	int busnum;
-//	int delaytime;
-//	int arrivetime;
-//}typedef bus;
-//
-//bus busline[11];
-//queue <bus> buslist;
-//queue <bus> waitlist;
-//
-//void outbus(int t, int n)
-//{
-//	for (int i = 1; i <= n; i++)
-//	{
-//		bool flag = true;
-//		if (busline[i].busnum != -1)
-//		{
-//			for (int j = 1; j < i; j++)
-//			{
-//				if (busline[j].busnum != -1)
-//				{
-//					flag = false;
-//					break;
-//				}
-//			}
-//			if (flag && busline[i].arrivetime + busline[i].delaytime <= t)
-//				busline[i].busnum = -1;
-//		}
-//	}
-//	return;
-//}
-//int checkbusstop(int n)
-//{
-//	int num = -1;
-//	for (int i = n; i > 0; i--)
-//	{
-//		if (busline[i].busnum == -1)
-//			num = i;
-//		else
-//			break;
-//	}
-//	return num;
-//}
-//
-//int simulate(int n, int m)
-//{
-//	int t = 0;
-//	while (!buslist.empty() || !waitlist.empty())
-//	{
-//		outbus(t, n);
-//		while (!buslist.empty() && buslist.front().arrivetime == t)
-//		{
-//			waitlist.push(buslist.front());
-//			buslist.pop();
-//		}
-//		while (checkbusstop(n) != -1 && !waitlist.empty())
-//		{
-//			bus temp = waitlist.front();
-//			waitlist.pop();
-//			if (temp.busnum == m)
-//				return checkbusstop(n);
-//			temp.arrivetime = t;
-//			busline[checkbusstop(n)] = temp;
-//		}
-//		t++;
-//	}
-//	return -2;
-//}
-//
-//int main() {
-//	int n, m;
-//	cin >> n >> m;
-//	for (int i = 1; i <= n; i++)
-//	{
-//		busline[i].busnum = -1;
-//		busline[i].arrivetime = -1;
-//		busline[i].delaytime = -1;
-//	}
-//	for (int i = 1; i <= m; i++)
-//	{
-//		bus temp;
-//		temp.busnum = i;
-//		cin >> temp.arrivetime;
-//		cin >> temp.delaytime;
-//		buslist.push(temp);
-//	}
-//	cout << simulate(n, m) << endl;
-//	return 0;
-//}
-
-
-//#include <iostream>
-//#include <algorithm>
-//#include <queue>
-//using namespace std;
-//
-//struct data {
-//	int   t;
-//	int p;
-//}tmp;
-//
-//int arr[101];
-//int t, p;
-//queue<data> q;
-//int time = 0;
-//
-//int main() {
-//	int n, m;
-//	cin >> n >> m;
-//	for (int i = 0; i < m; i++) {
-//		cin >> t >> p;
-//
-//		tmp.t = t;
-//		tmp.p = p;
-//		q.push(tmp);
-//	}
-//	arr[n] = 1; //ex nÀÌ 2ÀÏ¶§ ¹è¿­ÀÇ »óÅÂ 0,0,1
-//
-//	time = 1;
-//
-//	while (!q.empty()) { //¹ö½º°¡ ´Ù ºüÁú¶§±îÁö
-//
-//		while (1)//¹ö½º°¡ µé¾î°í ºüÁú ¼ö ÀÖ´Â Á¶°ÇÀÌ ¿©·¯°¡Áö¶ó ¹«ÇÑ¹İº¹
-//		{
-//			if (q.front().t > time) break;  //¹ö½º°¡ ´ë±âÁßÀÎ°¡? ¾Æ´Ï¶ó¸é while¹® Å»Ãâ
-//											//¸Â´Ù¸é ¹ö½º ³Ö±â ½Ãµµ
-//			int j = -1;
-//			//¾îµğ±îÁö ÃÖ´ëÇÑ ¹ö½º°¡ µé¾î°¥ ¼ö ÀÖ´Â°¡? 
-//			// ¹è¿­ »óÈ²ÀÌ 0 0 1 ÀÌ¶ó¸é j´Â 1;
-//			// ¹è¿­ »óÈ²ÀÌ 1 5 1 ÀÌ¶ó¸é j -1;
-//			for (int i = 0; i < n; i++) {
-//				if (arr[i] == 0) j++;
-//				else break;
-//			}
-//			if (j == -1) break;
-//			//j°¡ -1ÀÌ¶ó¸é ¹ö½º°¡ µé¾î°¥ ¼ö ¾ø´Â »óÅÂÀÌ¹Ç·Î while¹® Å»Ãâ
-//
-//			else {// j°¡ 0ÀÌ»óÀÌ¶ó¸é 
-//				arr[j] = q.front().p; // arr[j]¿¡ Å¥ ¹ö½º Á¤Â÷ ½Ã°£ »ğÀÔ
-//				q.pop(); //¹ö½º »­
-//				if (q.empty()) { // ¸¶Áö¸· ¹ö½º°¡ µé¾î¿Ô´Ù¸é
-//					cout << n - j; // j°¡ ¹æ±İ ¹ö½º¸¦ Á¤Â÷½ÃÅ² À§Ä¡ÀÌ¹Ç·Î Ãâ·ÂÇÏ°í Á¾·á
-//					return 0;
-//				}
-//			}
-//		}
-//
-//		//ex) ÇöÀç Á¤·ùÀå ¹è¿­ »óÅÂ 1,5,1
-//		for (int i = 0; i < n; i++) {
-//			if (arr[i] != 0) {
-//				arr[i]--;
-//				if (arr[i] <= 0) arr[i] = -1;
-//			}
-//		}
-//
-//		//ÇöÀç Á¤·ùÀå ¹è¿­ »óÅÂ -1,4,1 
-//		//0ÀÌÇÏ¶ó¸é -1·Î ¹Ù²ãÁÖ°í ºüÁú ¼ö ÀÖ´Â Á¶°ÇÀÌ µÇ¾ú´Ù´Â »óÅÂ
-//
-//		//Á¤·ùÀå ¸Ç ³¡¿¡¼­ºÎÅÍ Å½»öÇÏ¸é¼­ 0º¸´Ù ÀÛÀº °ªµéÀÌ ³ª¿À¸é ÇÑ²¨¹ø¿¡ »©ÁÜ
-//		//¸¸¾à 0 ÃÊ°ú °ªÀÌ ³ª¿À´Â ¼ø°£ »©ÁÖ´Â°Å ±×¸¸ÇÏ°í for¹® Å»Ãâ
-//		for (int i = n - 1; i >= 0; i--) {
-//			if (arr[i] <= 0) arr[i] = 0;
-//			else break;
-//		}
-//		//½Ã°£ Áõ°¡
-//		time++;
-//
-//	}
-//	return 0;
-//}
