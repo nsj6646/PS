@@ -5,7 +5,7 @@ struct bus{
 	int id,t,p;
 }a[N];
 int idx;
-bus q[N*N];
+bus q[N];
 int front,rear;
 
 int busstop[11];	//-1: 버스없음 0이상: 남은 정차시간
