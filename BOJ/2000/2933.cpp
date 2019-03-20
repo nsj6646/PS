@@ -46,7 +46,7 @@ void move(){
     while(flag){
         m++;
         for(int i=0;i<sz;++i){
-            if(a[cluster[i].x+m][cluster[i].y]=='x'){
+            if(a[cluster[i].x+m][cluster[i].y]=='x'){   //부딫힘
                m-=1;
                flag=false;
                break; 
@@ -55,7 +55,7 @@ void move(){
     }
 
     for(int i=0;i<sz;++i){
-        a[cluster[i].x+m][cluster[i].y]='x';
+        a[cluster[i].x+2][cluster[i].y]='x';
     }
     sz=0;
 }
