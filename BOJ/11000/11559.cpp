@@ -17,7 +17,7 @@ int dy[]={0,0,-1,1};
 void init(){
 	memset(visited,0,sizeof(visited));
 	front=rear=0;
-	memcpy(save,a,sizeof(save));
+	memcpy(save,a,sizeof(save));	//복원을 위해//백업배열
 }
 bool bfs(int sx,int sy,char c){
 	init();
@@ -68,7 +68,6 @@ void move(){
 
 int main()
 {
-    freopen("input.txt","r",stdin);
 	for(int i=0;i<12;++i){
 		for(int j=0;j<6;++j){
 			scanf(" %c",&a[i][j]);
@@ -76,11 +75,11 @@ int main()
 	}
 
 	int ans=-1;
-	bool boom=true;
+	bool boom=true;	//연쇄작용여부
 	while(boom){
 		boom=false;
 		ans++;
-
+		//영역구하기
 		for(int i=0;i<12;++i){
 			for(int j=0;j<6;++j){
 				if(a[i][j]!='.'&&!visited[i][j]){
