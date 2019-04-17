@@ -1,5 +1,5 @@
 /*
- * boj 17141: 연구소 3
+ * boj 17142: 연구소 3
  * copyright: nsj6646@naver.com
  */
 
