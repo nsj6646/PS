@@ -4,7 +4,7 @@
  */
 #include <bits/stdc++.h>
 using namespace std;
-#define MAX_SIZE    251
+#define MAX_SIZE    255
 #define SAFE(x,y)   (x)>=0&&(x)<r&&(y)>=0&&(y)<c
 typedef pair<int,int> point;
 int r,c;
