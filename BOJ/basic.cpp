@@ -1,5 +1,5 @@
 /*
- * boj :
+ * boj : 
  * copyright: nsj6646@naver.com
  */
 #include <bits/stdc++.h>
